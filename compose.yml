@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:latest
+    restart: "on-failure"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  web:
+    image: nabhold:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: "on-failure"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 8000:8000
+    command: python /app/manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+      - redis
+
+  nginx:
+    build: ./nginx
+    restart: "on-failure"
+    ports:
+      - "1300:80"
+      - "443:443"
+    volumes:
+      - static_volume:/app/static
+    depends_on:
+      - web
+
+
+  redis:
+    image: redis:latest
+    restart: always
+
+
+  daphne:
+    build: .  
+    restart: always 
+    environment: 
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
+      - redis
+
+volumes:
+ postgres_data:
+ static_volume:
+ media_volume:
