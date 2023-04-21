@@ -3,7 +3,7 @@ from django.contrib.auth.models import (BaseUserManager,
                                         AbstractBaseUser)
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.utils.translation import gettext_lazy as _ 
+from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth import get_user_model
 
@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 # Create your models here.
 class CustomUserManager(BaseUserManager):
     """ custom user manager """
-    def create_user(self, email, date_of_birth, password=None):
+    def create_user(self, email, password=None):
         """
         Creates and saves a User with the given email, date of
         birth and password.
@@ -21,23 +21,19 @@ class CustomUserManager(BaseUserManager):
 
         user = self.model(
             email=self.normalize_email(email),
-            date_of_birth=date_of_birth,
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, date_of_birth, password=None):
+    def create_superuser(self, email, password=None):
         """
         Creates and saves a superuser with the given email, date of
         birth and password.
         """
         user = self.create_user(
-            email,
-            password=password,
-            date_of_birth=date_of_birth,
-        )
+            email,  password=password)
         user.is_admin = True
         user.save(using=self._db)
         return user
